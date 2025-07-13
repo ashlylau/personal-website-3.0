@@ -3,73 +3,92 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+// Collect all unique tags
+const tagSet = new Set();
+posts.forEach(post => {
+	(post.data.tags || []).forEach(tag => tagSet.add(tag));
+});
+const allTags = Array.from(tagSet);
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			.card-nav {
+				margin-bottom: 2rem;
+			}
+			.tag-chip {
+				border-radius: 16px;
+				background: none;
+				color: #c62828;
+				font-weight: 500;
+				font-size: 1.1rem;
+				cursor: pointer;
+				border: none; /* removing this makes them round chips */
+				transition: background 0.2s, color 0.2s;
+				text-decoration: none;
+			}
+			.tag-chip:hover {
+				text-decoration: underline;
+			}
+			.tag-chip.selected, .tag-chip:focus {
+				background: none;
+				color: #c62828;
+				outline: none;
+				text-decoration: underline;
+			}
+		</style>
 	</head>
 	<body>
 		<Header />
 		<main>
 			<nav class="card-nav">
-				<span>all - <a href="#">projects</a> - travel - fitness - work - hobbies</span>
+				<span id="tag-chips">
+					<button class="tag-chip selected" data-tag="all" type="button">all</button>
+					{allTags.map(tag => (
+						<button class="tag-chip" data-tag={tag} type="button">{tag}</button>
+					))}
+				</span>
 			</nav>
-			<div class="card-grid">
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-5.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine // 1 of 7</div>
-					<div class="card-tags"><a href="#">projects</a> - travel</div>
-				</div>
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-2.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine // 1 of 7</div>
-					<div class="card-tags">projects - travel</div>
-				</div>
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-3.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine -- 1 of 7</div>
-					<div class="card-tags"><a href="#">projects</a> - travel</div>
-				</div>
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-4.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine // 1 of 7</div>
-					<div class="card-tags"><a href="#">projects</a> - zine - hobbies</div>
-				</div>
-				<div class="card">
-					<div class="card-title">paris travel zine // 1 of 7</div>
-					<div class="card-tags"><a href="#">projects</a></div>
-				</div>
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-5.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine // 1 of 7</div>
-					<div class="card-tags">travel</div>
-				</div>
-				<div class="card">
-					<div class="card-title">I've no image for this project, this title will have to suffice</div>
-					<div class="card-tags">projects - travel</div>
-				</div>
-				<div class="card">
-					<div class="card-title">maybe this layout?</div>
-					<div class="card-tags">travel - <a href="#">projects</a></div>
-				</div>
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-2.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine // 1 of 7</div>
-				</div>
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-2.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine // 1 of 7</div>
-				</div>
-				<div class="card">
-					<div class="card-title">another imageless project</div>
-				</div>
-				<div class="card">
-					<img src="/src/assets/blog-placeholder-3.jpg" alt="paris travel zine" />
-					<div class="card-title">paris travel zine // 1 of 7</div>
-				</div>
+			<div class="card-grid" id="card-grid">
+				{
+					posts.map((post, idx) => (
+						<div class="card" data-tags={(post.data.tags || []).join(',')}>
+							{post.data.heroImage && (
+								<img src={post.data.heroImage.src} alt={post.data.title} />
+							)}
+							<div class="card-title">
+								<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+							</div>
+							<div class="card-tags">
+								{post.data.tags && post.data.tags.length > 0 ? (
+									post.data.tags.map((tag, index) => (
+										<>
+											{index > 0 && ' - '}
+											<a href="#">{tag}</a>
+										</>
+									))
+								) : (
+									post.data.description
+								)}
+							</div>
+						</div>
+					))
+				}
 			</div>
+			<script type="module">
+				import { initTagFilter } from '../tagFilter.js';
+				initTagFilter();
+			</script>
 		</main>
 		<Footer />
 	</body>

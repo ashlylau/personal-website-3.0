@@ -285,3 +285,13 @@ footer {
 	text-align: center;
 	font-size: 1.1rem;
 }
+
+/* Blog post styling */
+.prose ul,
+.prose ol,
+.prose li {
+	color: var(--site-red);
+}
+.prose .date {
+	color: var(--site-red);
+}
