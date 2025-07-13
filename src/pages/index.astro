@@ -1,0 +1,76 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<nav class="card-nav">
+				<span>all - <a href="#">projects</a> - travel - fitness - work - hobbies</span>
+			</nav>
+			<div class="card-grid">
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-5.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine // 1 of 7</div>
+					<div class="card-tags"><a href="#">projects</a> - travel</div>
+				</div>
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-2.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine // 1 of 7</div>
+					<div class="card-tags">projects - travel</div>
+				</div>
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-3.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine -- 1 of 7</div>
+					<div class="card-tags"><a href="#">projects</a> - travel</div>
+				</div>
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-4.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine // 1 of 7</div>
+					<div class="card-tags"><a href="#">projects</a> - zine - hobbies</div>
+				</div>
+				<div class="card">
+					<div class="card-title">paris travel zine // 1 of 7</div>
+					<div class="card-tags"><a href="#">projects</a></div>
+				</div>
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-5.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine // 1 of 7</div>
+					<div class="card-tags">travel</div>
+				</div>
+				<div class="card">
+					<div class="card-title">I've no image for this project, this title will have to suffice</div>
+					<div class="card-tags">projects - travel</div>
+				</div>
+				<div class="card">
+					<div class="card-title">maybe this layout?</div>
+					<div class="card-tags">travel - <a href="#">projects</a></div>
+				</div>
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-2.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine // 1 of 7</div>
+				</div>
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-2.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine // 1 of 7</div>
+				</div>
+				<div class="card">
+					<div class="card-title">another imageless project</div>
+				</div>
+				<div class="card">
+					<img src="/src/assets/blog-placeholder-3.jpg" alt="paris travel zine" />
+					<div class="card-title">paris travel zine // 1 of 7</div>
+				</div>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

@@ -1,0 +1,15 @@
+---
+import HeaderLink from './HeaderLink.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<header>
+	<nav>
+		<HeaderLink href="/">{SITE_TITLE}</HeaderLink>
+		<div class="internal-links">
+			<HeaderLink href="/about">about</HeaderLink>
+			<HeaderLink href="/contact">contact</HeaderLink>
+			<HeaderLink href="/cv">cv</HeaderLink>
+		</div>
+	</nav>
+</header>

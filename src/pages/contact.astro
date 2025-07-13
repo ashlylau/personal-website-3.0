@@ -1,0 +1,36 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_DESCRIPTION } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title="Contact" description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <p>I'd love to hear from you! Fill out the form below or email me directly at <a href="mailto:ashlylau@gmail.com">ashlylau@gmail.com</a>.</p>
+      <form class="contact-form">
+        <label for="name">Name</label>
+        <br />
+        <input type="text" id="name" name="name" required />
+        <br />
+
+        <label for="email">Email</label>
+        <br />
+        <input type="email" id="email" name="email" required />
+        <br />
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+
+        <button type="submit">Send</button>
+      </form>
+    </main>
+    <Footer />
+  </body>
+</html>

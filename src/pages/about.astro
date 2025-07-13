@@ -1,0 +1,23 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_DESCRIPTION } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title="Contact" description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <p>Hey! I'm Ashly.</p>
+	  <p>I like making cool things, and I'm currently working at Google building all things barcode, computer vision and on-device ML.</p>
+	  <p>In my free time you can likely find me watching a movie, climbing, reading substacks or somewhere in macritchie reservoir.</p>
+	  <p>Contact me via: linkedin - email - instagram</p>
+    </main>
+    <Footer />
+  </body>
+</html>
