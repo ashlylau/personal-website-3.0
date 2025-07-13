@@ -1,9 +1,16 @@
-export function getTagFromURL(): string {
+/**
+ * @returns {string}
+ */
+export function getTagFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('tag') || 'all';
 }
 
-export function setTagInURL(tag: string): void {
+/**
+ * @param {string} tag
+ * @returns {void}
+ */
+export function setTagInURL(tag) {
   const params = new URLSearchParams(window.location.search);
   if (tag === 'all') {
     params.delete('tag');
@@ -13,7 +20,13 @@ export function setTagInURL(tag: string): void {
   history.replaceState(null, '', `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`);
 }
 
-export function filterByTag(tag: string, chips: NodeListOf<HTMLButtonElement>, cards: NodeListOf<HTMLElement>): void {
+/**
+ * @param {string} tag
+ * @param {NodeListOf<HTMLButtonElement>} chips
+ * @param {NodeListOf<HTMLElement>} cards
+ * @returns {void}
+ */
+export function filterByTag(tag, chips, cards) {
   chips.forEach(c => c.classList.remove('selected'));
   chips.forEach(c => {
     if ((c.getAttribute('data-tag') || '') === tag) {
@@ -30,9 +43,12 @@ export function filterByTag(tag: string, chips: NodeListOf<HTMLButtonElement>, c
   });
 }
 
-export function initTagFilter(): void {
-  const chips = document.querySelectorAll<HTMLButtonElement>('.tag-chip');
-  const cards = document.querySelectorAll<HTMLElement>('.card-grid .card');
+/**
+ * @returns {void}
+ */
+export function initTagFilter() {
+  const chips = document.querySelectorAll('.tag-chip');
+  const cards = document.querySelectorAll('.card-grid .card');
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
       const tag = chip.getAttribute('data-tag') || '';
