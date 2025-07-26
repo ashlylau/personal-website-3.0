@@ -8,7 +8,7 @@ import { Image } from 'astro:assets';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.props;
 ---
 
 <html lang="en">
@@ -18,7 +18,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			main {
 				width: calc(100% - 2em);
 				max-width: 100%;
-				margin: 0;
+				margin: 0 auto;
 			}
 			.hero-image {
 				width: 100%;
@@ -26,30 +26,27 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.hero-image img {
 				display: block;
 				margin: 0 auto;
-				/* border-radius: 12px; */
-				box-shadow: var(--box-shadow);
-				/* border-radius: 0; */
+				border-radius: 0;
+				box-shadow: none;
 			}
 			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
+				width: 100%;
+				max-width: 960px;
 				margin: auto;
-				padding: 1em;
-			}
-			.title {
-				margin-bottom: 1em;
 				padding: 1em 0;
-				text-align: center;
+			}
+			.information-row {
+				width: 100%;
+				max-width: 960px;
+				margin: 0 auto;
+				padding: 0;
+				text-align: left;
 				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-			}
-			.last-updated-on {
-				font-style: italic;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				color: var(--site-red);
+				gap: 1em;
 			}
 		</style>
 	</head>
@@ -58,24 +55,27 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<Header />
 		<main>
 			<article>
+				<div class="information-row">
+					<p>{title}</p>
+					<p>
+						<FormattedDate date={pubDate} />
+					</p>
+				</div>
 				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+					{heroImage && <Image width={960} height={510} src={heroImage} alt="" />}
+				</div>
+				<div class="information-row">
+					<p>{description}</p>
+					<p class="card-tags">
+						{(tags ?? []).map((tag, index) => (
+							<>
+								{index > 0 && ' - '}
+								<a href={`/?tag=${encodeURIComponent(tag)}`}>{tag}</a>
+							</>
+						))}
+					</p>
 				</div>
 				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
 					<slot />
 				</div>
 			</article>

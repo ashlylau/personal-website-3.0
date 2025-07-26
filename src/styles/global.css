@@ -235,6 +235,7 @@ hr {
 	text-decoration: none;
 	font-family: var(--site-font);
 }
+.card-tags a.selected,
 .card-tags a:hover {
 	text-decoration: underline;
 	font-family: var(--site-font);

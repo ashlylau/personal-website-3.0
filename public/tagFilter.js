@@ -41,12 +41,9 @@ export function filterByTag(tag, chips, cards) {
   const allCardTags = document.querySelectorAll('.card-tags a');
   allCardTags.forEach(cardTag => {
     const cardTagText = cardTag.textContent || '';
-    if (tag === 'all') {
-      cardTag.style.textDecoration = 'none';
-    } else if (cardTagText === tag) {
-      cardTag.style.textDecoration = 'underline';
-    } else {
-      cardTag.style.textDecoration = 'none';
+    cardTag.classList.remove('selected');
+    if (tag !== 'all' && cardTagText === tag) {
+      cardTag.classList.add('selected');
     }
   });
   
