@@ -60,8 +60,11 @@ const allTags = Array.from(tagSet);
 				}
 			</div>
 			<script type="module">
+				console.log('Script loading...');
 				import { initTagFilter } from '/tagFilter.js';
+				console.log('Module imported, calling initTagFilter...');
 				initTagFilter();
+				console.log('initTagFilter called');
 			</script>
 		</main>
 		<Footer />

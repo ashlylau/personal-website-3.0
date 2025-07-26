@@ -27,12 +27,30 @@ export function setTagInURL(tag) {
  * @returns {void}
  */
 export function filterByTag(tag, chips, cards) {
+  console.log('filterByTag called with:', tag);
+  
+  // Update chip selection
   chips.forEach(c => c.classList.remove('selected'));
   chips.forEach(c => {
     if ((c.getAttribute('data-tag') || '') === tag) {
       c.classList.add('selected');
     }
   });
+  
+  // Update card tag underlines
+  const allCardTags = document.querySelectorAll('.card-tags a');
+  allCardTags.forEach(cardTag => {
+    const cardTagText = cardTag.textContent || '';
+    if (tag === 'all') {
+      cardTag.style.textDecoration = 'none';
+    } else if (cardTagText === tag) {
+      cardTag.style.textDecoration = 'underline';
+    } else {
+      cardTag.style.textDecoration = 'none';
+    }
+  });
+  
+  // Update card visibility
   cards.forEach(card => {
     if (tag === 'all') {
       card.style.display = '';
@@ -47,16 +65,40 @@ export function filterByTag(tag, chips, cards) {
  * @returns {void}
  */
 export function initTagFilter() {
+  console.log('initTagFilter called');
   const chips = document.querySelectorAll('.tag-chip');
   const cards = document.querySelectorAll('.card-grid .card');
+  const cardTags = document.querySelectorAll('.card-tags a');
+  
+  console.log('Found elements:', {
+    chips: chips.length,
+    cards: cards.length,
+    cardTags: cardTags.length
+  });
+  
+  // Handle tag chip clicks
   chips.forEach(chip => {
     chip.addEventListener('click', () => {
+      console.log('Chip clicked:', chip.getAttribute('data-tag'));
       const tag = chip.getAttribute('data-tag') || '';
       setTagInURL(tag);
       filterByTag(tag, chips, cards);
     });
   });
+  
+  // Handle card tag clicks
+  cardTags.forEach(tagLink => {
+    tagLink.addEventListener('click', (e) => {
+      console.log('Card tag clicked:', tagLink.textContent);
+      e.preventDefault(); // Prevent default link behavior
+      const tag = tagLink.textContent || '';
+      setTagInURL(tag);
+      filterByTag(tag, chips, cards);
+    });
+  });
+  
   // On page load, set filter from URL
   const initialTag = getTagFromURL();
+  console.log('Initial tag from URL:', initialTag);
   filterByTag(initialTag, chips, cards);
 } 
