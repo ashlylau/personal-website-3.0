@@ -10,19 +10,24 @@ import { SITE_DESCRIPTION } from '../consts';
   <head>
     <BaseHead title="Contact" description={SITE_DESCRIPTION} />
     <style>
-		/* main {
+		main {
 			width: 100%;
 			max-width: 800px;
 			margin: 0 auto;
-		} */
+		}
 	</style>
   </head>
   <body>
     <Header />
     <main>
+      <p>Putting things up on this website feels like I'm screaming into a void. Would love to know if there are actual people out here.</p>
+      <p>Any ideas for projects to start on next, podcasts to listen to, movies to watch, books to read, places to travel?</p>
+      <p>What is a recent piece of content that has made you think?</p>
+      <p>What is your favourite breed of dog and why?</p>
+      <br />
 	  <p>Contact me via: <a href="https://www.linkedin.com/in/ashly-lau/">linkedin</a> - <a href="mailto:ashly@gmail.com">email</a> - <a href="https://www.instagram.com/ashly.lau/">instagram</a></p>
       <p>Or, fill out the form below:</p>
-      <form class="contact-form">
+      <form class="contact-form" action="https://formspree.io/f/mrblqryj" method="POST">
         <label for="name">Name</label>
         <br />
         <input type="text" id="name" name="name" required />
