@@ -1,0 +1,19 @@
+---
+title: 'Statistical Privacy Guarantees of Machine Learning Preprocessing Techniques'
+description: 'MEng Individual Project'
+pubDate: 'September 2021'
+tags: ['projects', 'ml']
+---
+import { Image } from 'astro:assets';
+import tpdp from '../../assets/blog/tpdp.png';
+
+<Image src={tpdp} alt="TPDP 2021 Poster"/>
+
+_MEng Individual Project, accepted for the poster workshop at [TPDP 2021](https://tpdp.journalprivacyconfidentiality.org/2021/)._ 
+
+
+Differential privacy provides strong privacy guarantees for machine learning applications, and it is increasingly being studied in research and in practical applications. Much recent work has been focused on developing differentially private models. However, there has been a gap in other stages of the machine learning pipeline, in particular during the data preprocessing phase. To successfully integrate differential privacy into practical machine learning settings, there is a need to study differential privacy guarantees of full machine learning pipelines.
+
+Our contributions are twofold: we firstly adapt a privacy violation detection framework based on statistical methods to empirically measure privacy levels of machine learning pipelines, where previous efforts have measured differential privacy of only machine learning models through adversarial methods. We then use our newly created framework to show that resampling techniques commonly used when dealing with imbalanced datasets cause the resultant model to leak more privacy. Our results highlight the crucial need for developing differentially private resampling techniques, and we use insights from our evaluation to explore promising directions in developing these algorithms.
+
+https://arxiv.org/abs/2109.02496

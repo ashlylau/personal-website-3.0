@@ -38,7 +38,9 @@ const allTags = Array.from(tagSet);
 					posts.map((post, idx) => (
 						<div class="card" data-tags={(post.data.tags || []).join(',')}>
 							{post.data.heroImage && (
-								<img src={post.data.heroImage.src} alt={post.data.title} />
+								<a href={`/blog/${post.id}/`}>
+									<img src={post.data.heroImage.src} alt={post.data.title} />
+								</a>
 							)}
 							<div class="card-title">
 								<a href={`/blog/${post.id}/`}>{post.data.title}</a>

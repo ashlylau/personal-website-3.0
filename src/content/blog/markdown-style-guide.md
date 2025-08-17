@@ -1,10 +1,12 @@
 ---
 title: 'Markdown Style Guide'
-description: 'Basic Markdown syntax'
-pubDate: 'Jun 19 2024'
-heroImage: '../../assets/blog/markdown-style-guide/hero.jpg'
-tags: ['projects', 'work']
+description: 'for reference'
+pubDate: 'August 2000'
+heroImage: '../../assets/blog/stash-home-cafe/hero.jpg'
+tags: ['website']
 ---
+
+<mark>Please ignore, this is for me to reference markdown styles for future blogs lol</mark>
 
 Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.
 

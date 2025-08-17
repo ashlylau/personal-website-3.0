@@ -1,0 +1,24 @@
+---
+title: 'Stitch Call'
+description: 'A non-conventional video call platform'
+pubDate: 'February 2020'
+heroImage: '../../assets/blog/stitch-call/stitch-call.png'
+tags: ['projects', 'ml']
+---
+import { Image } from 'astro:assets';
+import stitchCall from '../../assets/blog/stitch-call/stitch-call-demo.png';
+
+_Winner of IC Hack 2020_
+
+As part of [IC Hack 2020](https://ichack.org/), our team created a non-conventional video chat platform to bring people who are in separate places, even closer together.
+
+<Image src={stitchCall} alt="Stitch Call"/>
+
+Stitch Call uses real-time image segmentation to put video chat users together in the same screen and environment. We also integrated a few interactive games that make use of emotion detection, to make the hangout even more exciting.
+
+<iframe src="https://www.youtube.com/embed/wlyzsE8sHfA?autoplay=1&mute=1&loop=1&controls=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+
+Tech stack: Python, TensorFlow Lite, OpenCV, Flask, JavaScript, WebRTC ([GitHub](https://github.com/jasminequah/ichack20-gsd))
+

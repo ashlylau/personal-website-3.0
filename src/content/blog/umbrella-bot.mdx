@@ -1,0 +1,23 @@
+---
+title: 'Umbrella Bot'
+description: 'A useful telegram bot'
+pubDate: 'March 2020'
+heroImage: '../../assets/blog/umbrella-bot/umbrella-bot.jpg'
+tags: ['projects']
+---
+import { Image } from 'astro:assets';
+import umbrellaBot from '../../assets/blog/umbrella-bot/umbrella-bot-2.jpg';
+
+This telegram bot does exactly what it says it does, it reminds you to bring an umbrella if it's going to rain that day.
+
+You can `/subscribe` for daily weather and covid updates, as well as get it to give you random facts (did you know that a giraffe has the same number of bones in its neck as a human?!)
+
+I'm not too sure if the bot still works, but its worth a shot: https://telegram.me/umbrella_test_bot.
+
+<Image src={umbrellaBot} alt="Umbrella Bot"/>
+
+Built with [Telegram Bot API for NodeJS](https://github.com/yagop/node-telegram-bot-api), deployed on Heroku.
+
+APIs used: [Data.gov.sg weather dataset](https://data.gov.sg/collections/1456/view), [Covid-19 API](https://rapidapi.com/api-sports/api/covid-193), [Random Useless Facts](https://uselessfacts.jsph.pl/)
+
+View the code on GitHub [here](https://github.com/ashlylau/umbrella-bot).

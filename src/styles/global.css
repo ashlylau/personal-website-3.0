@@ -105,13 +105,14 @@ table {
 img {
 	max-width: 100%;
 	height: auto;
-	border-radius: 8px;
+	border-radius: 0px;
+	box-shadow: none;
 }
 code {
 	padding: 2px 5px;
 	background-color: rgb(var(--gray-light));
 	border-radius: 2px;
-	font-size: 1.1rem;
+	font-size: 1.0rem;
 }
 pre {
 	padding: 1.5em;
@@ -205,7 +206,7 @@ hr {
 	flex-direction: column;
 	align-items: flex-start;
 	min-height: 260px;
-	justify-content: flex-start;
+	justify-content: space-between;
 }
 .card img {
 	width: 100%;
@@ -342,13 +343,39 @@ footer {
 }
 
 /* Blog post styling */
-.prose ul,
-.prose ol,
-.prose li {
+ul,
+ol,
+li {
 	color: var(--site-red);
 	font-size: 1.1rem;
 }
-.prose .date {
+.date {
 	color: var(--site-red);
 	font-family: var(--site-font);
+}
+
+/* Responsive iframe styles for embedded slides */
+iframe {
+	max-width: 100%;
+	height: auto;
+	aspect-ratio: 3/2; /* Maintains 600:400 ratio */
+	margin: 1rem 0;
+}
+
+/* Make card images clickable while maintaining layout */
+.card a {
+	width: 100%;
+}
+
+.card a img {
+	width: 100%;
+	height: 180px;
+	object-fit: cover;
+	margin-bottom: 0.5rem;
+	border-radius: 0;
+	transition: opacity 0.2s ease;
+}
+
+.card a:hover img {
+	opacity: 0.8;
 }
