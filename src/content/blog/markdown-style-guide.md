@@ -2,7 +2,7 @@
 title: 'Markdown Style Guide'
 description: 'Basic Markdown syntax'
 pubDate: 'Jun 19 2024'
-heroImage: '../../assets/blog-placeholder-1.jpg'
+heroImage: '../../assets/blog/markdown-style-guide/hero.jpg'
 tags: ['projects', 'work']
 ---
 
@@ -40,7 +40,7 @@ Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sap
 
 ### Output
 
-![blog placeholder](../../assets/blog-placeholder-about.jpg)
+![blog placeholder](../../assets/blog/markdown-style-guide/hero.jpg)
 
 ## Blockquotes
 
