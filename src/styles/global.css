@@ -19,20 +19,7 @@
 	--site-font: 'Inter', Arial, sans-serif;
 	/* --site-font: 'IBM Plex Sans', Arial, sans-serif; */
 }
-@font-face {
-	font-family: 'Atkinson';
-	src: url('/fonts/atkinson-regular.woff') format('woff');
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: 'Atkinson';
-	src: url('/fonts/atkinson-bold.woff') format('woff');
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
+
 body {
 	background: #fff; /* White background for the whole site */
 	background-size: 100% 600px;
@@ -249,6 +236,7 @@ hr {
 	color: #c62828;
 	font-weight: 500;
 	font-size: 1.1rem;
+	font-family: var(--site-font);
 	cursor: pointer;
 	border: none; /*removing this makes them round chips*/
 	transition: background 0.2s, color 0.2s;
@@ -318,6 +306,9 @@ header a[href="/"].active {
 .contact-form input,
 .contact-form textarea {
 	border: 1.5px solid var(--site-red);
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
 }
 .contact-form button {
 	border: 1.5px solid var(--site-red);
