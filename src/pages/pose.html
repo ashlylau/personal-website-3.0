@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PosePlay</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --panel: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --success: #10b981;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Subtle grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.7; }
+  }
+
+  .status-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  .status-pill.active .status-dot {
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+  }
+
+  .status-pill.active { color: var(--success); border-color: var(--success); }
+
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* Camera Section */
+  .cam-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #050508;
+    overflow: hidden;
+  }
+
+  #videoEl {
+    position: absolute;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    opacity: 0;
+  }
+
+  #outputCanvas {
+    position: absolute;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+
+  #emojiCanvas {
+    position: absolute;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .cam-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: var(--muted);
+    z-index: 2;
+  }
+
+  .cam-placeholder .icon {
+    font-size: 48px;
+    opacity: 0.4;
+  }
+
+  .cam-placeholder p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .start-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(124,58,237,0.4);
+  }
+
+  .start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(124,58,237,0.6);
+  }
+
+  /* Pose Detection Overlay — corner badge */
+  .detected-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    background: rgba(10,10,15,0.85);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    backdrop-filter: blur(8px);
+    display: none;
+  }
+
+  .detected-badge.show { display: block; }
+  .detected-badge .pose-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .detected-badge .conf {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* Pose Cards */
+  .pose-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+  }
+
+  .pose-card.active {
+    border-color: var(--accent);
+    background: rgba(124,58,237,0.1);
+    box-shadow: 0 0 16px rgba(124,58,237,0.2);
+  }
+
+  .pose-emoji { font-size: 28px; line-height: 1; }
+
+  .pose-info { flex: 1; min-width: 0; }
+
+  .pose-name-label {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .pose-bar-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .pose-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.15s ease;
+  }
+
+  .pose-card.active .pose-bar { background: var(--accent2); }
+
+  .pose-conf-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Debug Section */
+  .debug-panel {
+    flex: 1;
+    padding: 16px 20px;
+  }
+
+  .debug-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .debug-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  .debug-item .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .debug-item .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .landmark-log {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    max-height: 160px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+
+  .landmark-log .highlight { color: var(--accent3); }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .toggle {
+    width: 36px; height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(16px); }
+
+  /* Loading overlay */
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5,5,8,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    gap: 12px;
+  }
+
+  .loading-overlay.hidden { display: none; }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* Burst animation canvas */
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-200px) scale(1.5) rotate(40deg); opacity: 0; }
+  }
+
+  .floating-emoji {
+    position: absolute;
+    font-size: 32px;
+    pointer-events: none;
+    animation: floatUp 1.2s ease-out forwards;
+    z-index: 20;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .fps-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    position: absolute;
+    bottom: 12px;
+    right: 16px;
+    z-index: 10;
+    background: rgba(0,0,0,0.5);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    PosePlay
+  </div>
+  <div class="status-pill" id="statusPill">
+    <div class="status-dot"></div>
+    <span id="statusText">WAITING</span>
+  </div>
+</header>
+
+<div class="main">
+  <!-- Camera Section -->
+  <div class="cam-section" id="camSection">
+    <video id="videoEl" playsinline autoplay muted></video>
+    <canvas id="outputCanvas"></canvas>
+    <canvas id="emojiCanvas"></canvas>
+
+    <div class="detected-badge" id="detectedBadge">
+      <div class="pose-name" id="detectedPoseName">👍 Thumbs Up</div>
+      <div class="conf" id="detectedConf">confidence: 0.95</div>
+    </div>
+
+    <div class="fps-counter" id="fpsCounter">0 fps</div>
+
+    <div class="cam-placeholder" id="camPlaceholder">
+      <div class="icon">📷</div>
+      <p>Camera not started</p>
+      <button class="start-btn" id="startBtn">Start Camera</button>
+    </div>
+
+    <div class="loading-overlay hidden" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingMsg">Loading MediaPipe…</div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Pose Meters -->
+    <div class="sidebar-section">
+      <div class="section-label">Pose Detection</div>
+      <div class="pose-card" id="card-thumbsup">
+        <div class="pose-emoji">👍</div>
+        <div class="pose-info">
+          <div class="pose-name-label">Thumbs Up</div>
+          <div class="pose-bar-wrap"><div class="pose-bar" id="bar-thumbsup"></div></div>
+          <div class="pose-conf-num" id="conf-thumbsup">0%</div>
+        </div>
+      </div>
+      <div class="pose-card" id="card-heart">
+        <div class="pose-emoji">🤟</div>
+        <div class="pose-info">
+          <div class="pose-name-label">Love / Heart</div>
+          <div class="pose-bar-wrap"><div class="pose-bar" id="bar-heart"></div></div>
+          <div class="pose-conf-num" id="conf-heart">0%</div>
+        </div>
+      </div>
+      <div class="pose-card" id="card-fist">
+        <div class="pose-emoji">✊</div>
+        <div class="pose-info">
+          <div class="pose-name-label">Fist</div>
+          <div class="pose-bar-wrap"><div class="pose-bar" id="bar-fist"></div></div>
+          <div class="pose-conf-num" id="conf-fist">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Debug Toggles -->
+    <div class="sidebar-section">
+      <div class="section-label">Debug Options</div>
+      <div class="toggle-row">
+        <span>Show Landmarks</span>
+        <div class="toggle on" id="toggleLandmarks"></div>
+      </div>
+      <div class="toggle-row">
+        <span>Show Skeleton</span>
+        <div class="toggle on" id="toggleSkeleton"></div>
+      </div>
+      <div class="toggle-row">
+        <span>Show Finger Tips</span>
+        <div class="toggle on" id="toggleTips"></div>
+      </div>
+    </div>
+
+    <!-- Debug Stats -->
+    <div class="debug-panel">
+      <div class="section-label">Debug Artifacts</div>
+      <div class="debug-grid">
+        <div class="debug-item">
+          <div class="label">Hands</div>
+          <div class="value" id="dbgHands">0</div>
+        </div>
+        <div class="debug-item">
+          <div class="label">FPS</div>
+          <div class="value" id="dbgFps">—</div>
+        </div>
+        <div class="debug-item">
+          <div class="label">Current Pose</div>
+          <div class="value" id="dbgPose">none</div>
+        </div>
+        <div class="debug-item">
+          <div class="label">Hold Time</div>
+          <div class="value" id="dbgHold">0s</div>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:12px;">Landmark Log</div>
+      <div class="landmark-log" id="landmarkLog">
+        <span style="color:#3a3a52">// waiting for hand detection…</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating emojis container (outside canvas, pure DOM) -->
+<div id="emojiLayer" style="position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden;"></div>
+
+<script type="module">
+import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+// ─── State ────────────────────────────────────────────────────────────
+const state = {
+  running: false,
+  showLandmarks: true,
+  showSkeleton: true,
+  showTips: true,
+  handsDetector: null,
+  lastPose: null,
+  poseHoldStart: null,
+  poseScores: { thumbsup: 0, heart: 0, fist: 0 },
+  lastBurst: {},
+  fps: 0,
+  frameCount: 0,
+  lastFpsTime: performance.now(),
+  animEmojis: [],
+};
+
+const BURST_COOLDOWN = 1200; // ms between bursts per pose
+const HOLD_THRESHOLD = 400;  // ms to hold before burst
+
+// ─── DOM refs ─────────────────────────────────────────────────────────
+const video = document.getElementById('videoEl');
+const outputCanvas = document.getElementById('outputCanvas');
+const ctx = outputCanvas.getContext('2d');
+const startBtn = document.getElementById('startBtn');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingMsg = document.getElementById('loadingMsg');
+const camPlaceholder = document.getElementById('camPlaceholder');
+const statusPill = document.getElementById('statusPill');
+const statusText = document.getElementById('statusText');
+const detectedBadge = document.getElementById('detectedBadge');
+const detectedPoseName = document.getElementById('detectedPoseName');
+const detectedConf = document.getElementById('detectedConf');
+const emojiLayer = document.getElementById('emojiLayer');
+const fpsCounter = document.getElementById('fpsCounter');
+const landmarkLog = document.getElementById('landmarkLog');
+
+// Toggles
+document.getElementById('toggleLandmarks').addEventListener('click', function() {
+  state.showLandmarks = !state.showLandmarks;
+  this.classList.toggle('on', state.showLandmarks);
+});
+document.getElementById('toggleSkeleton').addEventListener('click', function() {
+  state.showSkeleton = !state.showSkeleton;
+  this.classList.toggle('on', state.showSkeleton);
+});
+document.getElementById('toggleTips').addEventListener('click', function() {
+  state.showTips = !state.showTips;
+  this.classList.toggle('on', state.showTips);
+});
+
+// ─── MediaPipe Hand Connections ───────────────────────────────────────
+const HAND_CONNECTIONS = [
+  [0,1],[1,2],[2,3],[3,4],
+  [0,5],[5,6],[6,7],[7,8],
+  [5,9],[9,10],[10,11],[11,12],
+  [9,13],[13,14],[14,15],[15,16],
+  [13,17],[17,18],[18,19],[19,20],
+  [0,17]
+];
+
+// Finger tip indices
+const TIPS = [4, 8, 12, 16, 20];
+const FINGER_NAMES = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'];
+
+// ─── Pose Recognition ─────────────────────────────────────────────────
+function isExtended(lm, tipIdx, pipIdx) {
+  return lm[tipIdx].y < lm[pipIdx].y;
+}
+
+function landmarkDist(a, b) {
+  return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2 + (a.z-b.z)**2);
+}
+
+function recognizePose(lm) {
+  // Finger extension: true = extended
+  const thumbOut = lm[4].x < lm[3].x; // rough: thumb tip left of IP (for right hand mirrored)
+  const indexExt = isExtended(lm, 8, 6);
+  const middleExt = isExtended(lm, 12, 10);
+  const ringExt   = isExtended(lm, 16, 14);
+  const pinkyExt  = isExtended(lm, 20, 18);
+
+  // Also compute via y-distance from base (palm center ~ lm[9])
+  const thumbExtY  = lm[4].y < lm[2].y;
+  const indexExtY  = lm[8].y < lm[6].y;
+  const middleExtY = lm[12].y < lm[10].y;
+  const ringExtY   = lm[16].y < lm[14].y;
+  const pinkyExtY  = lm[20].y < lm[18].y;
+
+  const scores = { thumbsup: 0, heart: 0, fist: 0 };
+
+  // ── THUMBS UP ──
+  // Thumb extended upward, all other fingers curled
+  if (thumbExtY) scores.thumbsup += 0.4;
+  if (!indexExtY) scores.thumbsup += 0.15;
+  if (!middleExtY) scores.thumbsup += 0.15;
+  if (!ringExtY) scores.thumbsup += 0.15;
+  if (!pinkyExtY) scores.thumbsup += 0.15;
+
+  // ── FIST ──
+  // All fingers curled
+  if (!thumbExtY) scores.fist += 0.2;
+  if (!indexExtY) scores.fist += 0.2;
+  if (!middleExtY) scores.fist += 0.2;
+  if (!ringExtY) scores.fist += 0.2;
+  if (!pinkyExtY) scores.fist += 0.2;
+
+  // ── LOVE / ILY HAND ──
+  // Thumb + index + pinky extended, middle + ring curled
+  if (thumbExtY)  scores.heart += 0.25;
+  if (indexExtY)  scores.heart += 0.25;
+  if (!middleExtY) scores.heart += 0.2;
+  if (!ringExtY)   scores.heart += 0.2;
+  if (pinkyExtY)  scores.heart += 0.1;
+
+  // Find winner
+  let best = 'none', bestScore = 0;
+  for (const [k,v] of Object.entries(scores)) {
+    if (v > bestScore) { bestScore = v; best = k; }
+  }
+
+  // Require threshold
+  if (bestScore < 0.65) best = 'none';
+
+  return { pose: best, scores, best: bestScore };
+}
+
+// ─── Emoji burst ──────────────────────────────────────────────────────
+const POSE_META = {
+  thumbsup: { emoji: ['👍','✨','🌟','💫','🎉'], name: '👍 Thumbs Up' },
+  heart:    { emoji: ['🤟','❤️','💜','💕','✨'], name: '🤟 Love Sign' },
+  fist:     { emoji: ['✊','💥','⚡','🔥','💪'], name: '✊ Fist' },
+};
+
+function triggerBurst(poseName, cx, cy) {
+  const now = Date.now();
+  if (now - (state.lastBurst[poseName] || 0) < BURST_COOLDOWN) return;
+  state.lastBurst[poseName] = now;
+
+  const meta = POSE_META[poseName];
+  const sectionEl = document.querySelector('.cam-section');
+  const rect = sectionEl.getBoundingClientRect();
+
+  // Normalize cx/cy (0-1) to actual px
+  const baseX = rect.left + (1 - cx) * rect.width; // flip for mirror
+  const baseY = rect.top + cy * rect.height;
+
+  const count = 12 + Math.floor(Math.random() * 8);
+  for (let i = 0; i < count; i++) {
+    const em = document.createElement('div');
+    em.classList.add('floating-emoji');
+    em.textContent = meta.emoji[Math.floor(Math.random() * meta.emoji.length)];
+
+    const spread = 120;
+    const angle = (Math.random() * Math.PI * 2);
+    const dist = 30 + Math.random() * spread;
+    const startX = baseX + Math.cos(angle) * 20;
+    const startY = baseY + Math.sin(angle) * 10;
+    const tx = Math.cos(angle) * dist;
+    const ty = -80 - Math.random() * 120;
+
+    em.style.left = startX + 'px';
+    em.style.top = startY + 'px';
+    em.style.fontSize = (20 + Math.random() * 24) + 'px';
+    em.style.animationDelay = (Math.random() * 300) + 'ms';
+    em.style.animationDuration = (900 + Math.random() * 600) + 'ms';
+    em.style.setProperty('--tx', tx + 'px');
+    em.style.setProperty('--ty', ty + 'px');
+    em.style.animation = `floatCustom ${em.style.animationDuration} ${em.style.animationDelay} ease-out forwards`;
+
+    emojiLayer.appendChild(em);
+    setTimeout(() => em.remove(), 2000);
+  }
+}
+
+// ─── Draw Helpers ─────────────────────────────────────────────────────
+function drawHand(landmarks, pose) {
+  const W = outputCanvas.width, H = outputCanvas.height;
+
+  const toXY = lm => [lm.x * W, lm.y * H];
+
+  // Skeleton
+  if (state.showSkeleton) {
+    ctx.strokeStyle = pose !== 'none' ? 'rgba(124,58,237,0.7)' : 'rgba(6,182,212,0.5)';
+    ctx.lineWidth = 2;
+    for (const [a,b] of HAND_CONNECTIONS) {
+      const [x1,y1] = toXY(landmarks[a]);
+      const [x2,y2] = toXY(landmarks[b]);
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+    }
+  }
+
+  // Landmarks
+  if (state.showLandmarks) {
+    for (let i = 0; i < landmarks.length; i++) {
+      const [x,y] = toXY(landmarks[i]);
+      const isTip = TIPS.includes(i);
+
+      ctx.beginPath();
+      ctx.arc(x, y, isTip ? 6 : 3.5, 0, Math.PI*2);
+      if (isTip) {
+        ctx.fillStyle = pose !== 'none' ? '#7c3aed' : '#06b6d4';
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      }
+      ctx.fill();
+
+      // Tip labels
+      if (state.showTips && isTip) {
+        const tipIndex = TIPS.indexOf(i);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 10px JetBrains Mono, monospace';
+        ctx.fillText(FINGER_NAMES[tipIndex][0], x + 8, y - 4);
+      }
+    }
+
+    // Wrist label
+    const [wx, wy] = toXY(landmarks[0]);
+    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText('WRIST', wx + 6, wy + 4);
+  }
+
+  // Bounding box when pose detected
+  if (pose !== 'none') {
+    let minX=1,maxX=0,minY=1,maxY=0;
+    for (const lm of landmarks) {
+      minX = Math.min(minX, lm.x); maxX = Math.max(maxX, lm.x);
+      minY = Math.min(minY, lm.y); maxY = Math.max(maxY, lm.y);
+    }
+    const pad = 0.03;
+    const bx = (minX - pad) * W;
+    const by = (minY-pad) * H;
+    const bw = (maxX - minX + 2*pad) * W;
+    const bh = (maxY - minY + 2*pad) * H;
+
+    ctx.strokeStyle = 'rgba(124,58,237,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6,3]);
+    ctx.strokeRect(bx, by, bw, bh);
+    ctx.setLineDash([]);
+  }
+}
+
+function updateDebugLog(landmarks) {
+  const lines = [];
+  for (let i = 0; i < landmarks.length; i++) {
+    const lm = landmarks[i];
+    const isTip = TIPS.includes(i);
+    const name = i === 0 ? 'WRIST' : `lm[${i.toString().padStart(2,' ')}]`;
+    const line = `<span class="${isTip ? 'highlight' : ''}">${name}  x:${lm.x.toFixed(3)}  y:${lm.y.toFixed(3)}  z:${lm.z.toFixed(3)}</span>`;
+    lines.push(line);
+  }
+  landmarkLog.innerHTML = lines.join('\n');
+}
+
+// ─── Frame loop ───────────────────────────────────────────────────────
+let handLandmarker = null;
+let lastVideoTime = -1;
+
+async function processFrame() {
+  if (!state.running) return;
+
+  const now = performance.now();
+
+  // FPS
+  state.frameCount++;
+  if (now - state.lastFpsTime > 500) {
+    state.fps = Math.round(state.frameCount / ((now - state.lastFpsTime) / 1000));
+    state.frameCount = 0;
+    state.lastFpsTime = now;
+    fpsCounter.textContent = state.fps + ' fps';
+    document.getElementById('dbgFps').textContent = state.fps;
+  }
+
+  // Resize canvas to video
+  if (outputCanvas.width !== video.videoWidth || outputCanvas.height !== video.videoHeight) {
+    outputCanvas.width = video.videoWidth || 640;
+    outputCanvas.height = video.videoHeight || 480;
+  }
+
+  // Draw video frame
+  ctx.save();
+  ctx.drawImage(video, 0, 0, outputCanvas.width, outputCanvas.height);
+  ctx.restore();
+
+  // Run detection
+  if (handLandmarker && video.readyState >= 2 && video.currentTime !== lastVideoTime) {
+    lastVideoTime = video.currentTime;
+
+    let results;
+    try {
+      results = handLandmarker.detectForVideo(video, now);
+    } catch(e) { /* skip frame */ }
+
+    if (results && results.landmarks && results.landmarks.length > 0) {
+      const numHands = results.landmarks.length;
+      document.getElementById('dbgHands').textContent = numHands;
+
+      // Use first hand
+      const lm = results.landmarks[0];
+      const { pose, scores, best } = recognizePose(lm);
+
+      // Smooth scores
+      for (const k of Object.keys(scores)) {
+        state.poseScores[k] = state.poseScores[k] * 0.6 + (scores[k] || 0) * 0.4;
+      }
+
+      // Update pose cards
+      for (const [k, v] of Object.entries(state.poseScores)) {
+        const pct = Math.round(v * 100);
+        document.getElementById(`bar-${k}`).style.width = pct + '%';
+        document.getElementById(`conf-${k}`).textContent = pct + '%';
+        document.getElementById(`card-${k}`).classList.toggle('active', pose === k);
+      }
+
+      // Pose hold logic
+      if (pose !== 'none') {
+        if (state.lastPose !== pose) {
+          state.lastPose = pose;
+          state.poseHoldStart = Date.now();
+        }
+        const holdMs = Date.now() - state.poseHoldStart;
+        document.getElementById('dbgHold').textContent = (holdMs/1000).toFixed(1) + 's';
+
+        if (holdMs >= HOLD_THRESHOLD) {
+          // Find centroid
+          const cx = lm.reduce((s,l) => s+l.x, 0) / lm.length;
+          const cy = lm.reduce((s,l) => s+l.y, 0) / lm.length;
+          triggerBurst(pose, cx, cy);
+        }
+
+        document.getElementById('dbgPose').textContent = pose;
+        detectedPoseName.textContent = POSE_META[pose].name;
+        detectedConf.textContent = 'confidence: ' + (best * 100).toFixed(0) + '%';
+        detectedBadge.classList.add('show');
+      } else {
+        state.lastPose = null;
+        state.poseHoldStart = null;
+        document.getElementById('dbgPose').textContent = 'none';
+        document.getElementById('dbgHold').textContent = '0s';
+        detectedBadge.classList.remove('show');
+      }
+
+      // Draw skeleton
+      drawHand(lm, pose);
+
+      // Update landmark log (throttled)
+      if (Math.random() < 0.1) updateDebugLog(lm);
+
+    } else {
+      document.getElementById('dbgHands').textContent = 0;
+      detectedBadge.classList.remove('show');
+      document.getElementById('dbgPose').textContent = 'none';
+      // Reset scores
+      for (const k of Object.keys(state.poseScores)) {
+        state.poseScores[k] *= 0.85;
+        const pct = Math.round(state.poseScores[k] * 100);
+        document.getElementById(`bar-${k}`).style.width = pct + '%';
+        document.getElementById(`conf-${k}`).textContent = pct + '%';
+      }
+    }
+  }
+
+  requestAnimationFrame(processFrame);
+}
+
+// ─── Startup ──────────────────────────────────────────────────────────
+startBtn.addEventListener('click', async () => {
+  camPlaceholder.style.display = 'none';
+  loadingOverlay.classList.remove('hidden');
+  loadingMsg.textContent = 'Requesting camera…';
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+    video.srcObject = stream;
+    await video.play();
+  } catch(e) {
+    loadingMsg.textContent = 'Camera access denied.';
+    return;
+  }
+
+  loadingMsg.textContent = 'Loading MediaPipe…';
+
+  try {
+    const filesetResolver = await FilesetResolver.forVisionTasks(
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'
+    );
+
+    handLandmarker = await HandLandmarker.createFromOptions(filesetResolver, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+        delegate: 'GPU'
+      },
+      runningMode: 'VIDEO',
+      numHands: 2
+    });
+
+    loadingOverlay.classList.add('hidden');
+    state.running = true;
+
+    statusPill.classList.add('active');
+    statusText.textContent = 'DETECTING';
+
+    requestAnimationFrame(processFrame);
+
+  } catch(e) {
+    console.error(e);
+    loadingMsg.textContent = 'Error loading model: ' + e.message;
+  }
+});
+
+// ─── CSS keyframes for burst (dynamic) ────────────────────────────────
+const styleEl = document.createElement('style');
+styleEl.textContent = `
+@keyframes floatCustom {
+  0%   { transform: translate(0,0) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1.4) rotate(${Math.random()*60-30}deg); opacity: 0; }
+}
+`;
+document.head.appendChild(styleEl);
+</script>
+
+</body>
+</html>
